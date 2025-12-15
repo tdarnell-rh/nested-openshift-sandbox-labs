@@ -38,7 +38,11 @@
         dest: /etc/NetworkManager/dnsmasq.d/00-vmbridge.conf
         content: |
           #Forward any requests to resolve lab.example.com domains to the DNS VM 'dns.lab.example.com' (192.168.122.2)
-          server=/*.lab.example.com/192.168.122.2
+          server=/.lab.example.com/192.168.122.2
+          server=/.ocp.lab.example.com/192.168.122.2
+          server=/.sno.ocp.lab.example.com/192.168.122.2
+          server=/.tna.ocp.lab.example.com/192.168.122.2
+          server=/.compact.ocp.lab.example.com/192.168.122.2
 
     - name: Stop and disable systemd-resolved on the KVM host
       ansible.builtin.service:
