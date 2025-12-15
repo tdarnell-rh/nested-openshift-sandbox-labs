@@ -5,8 +5,8 @@
   roles:
     - fedora-bind-mgmt
 
-- name: Configure network with new DNS server and search for DNS VM
-  hosts: all
+- name: Configure network connection with new DNS server and search for DNS VM
+  hosts: dns_server
   become: true
   vars:
     network_connections:
@@ -22,3 +22,37 @@
             - ocp.lab.example.com
   roles:
     - fedora.linux_system_roles.network
+
+- name: Configure NetworkManager to use dnsmasq on KVM VM
+  hosts: kvm_target
+  become: true
+  tasks:
+    - name: Enable dnsmasq plugin on KVM VM
+      ansible.builtin.lineinfile:
+        path: /etc/NetworkManager/NetworkManager.conf
+        insertafter: '\[main\]'
+        line: 'dns=dnsmasq'
+    
+    - name: Configure dnsmasq to use DNS VM for all lab domains
+      ansible.builtin.copy:
+        dest: /etc/NetworkManager/dnsmasq.d/00-vmbridge.conf
+        content: |
+          #Forward any requests to resolve lab.example.com domains to the DNS VM 'dns.lab.example.com' (192.168.122.2)
+          server=/*.lab.example.com/192.168.122.2
+
+    - name: Stop and disable systemd-resolved on the KVM host
+      ansible.builtin.service:
+        name: systemd-resolved
+        state: stopped
+        enabled: false
+
+    - name: Delete the old /etc/resolv.conf
+      ansible.builtin.file:
+        path: /etc/resolv.conf
+        state: absent
+
+    - name: Restart NetworkManager on the KVM host
+      ansible.builtin.service:
+        name: NetworkManager
+        state: restarted
+
