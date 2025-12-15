@@ -1,0 +1,24 @@
+---
+- name: Install named and configure the zones
+  hosts: dns_server
+  become: true
+  roles:
+    - fedora-bind-mgmt
+
+- name: Configure network with new DNS server and search for DNS VM
+  hosts: all
+  become: true
+  vars:
+    network_connections:
+      - name: enp1s0
+        type: ethernet
+        interface_name: enp1s0
+        state: present
+        ip:
+          dns:
+            - 192.168.122.2
+          dns_search:
+            - lab.example.com
+            - ocp.lab.example.com
+  roles:
+    - fedora.linux_system_roles.network
