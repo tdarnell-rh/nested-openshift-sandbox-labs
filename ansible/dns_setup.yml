@@ -54,6 +54,11 @@
         state: stopped
         enabled: false
 
+    - name: Remove systemd-resolved on the KVM host
+      ansible.builtin.dnf:
+        name: systemd-resolved
+        state: absent
+
     - name: Delete the old /etc/resolv.conf
       ansible.builtin.file:
         path: /etc/resolv.conf
@@ -63,4 +68,3 @@
       ansible.builtin.service:
         name: NetworkManager
         state: restarted
-
