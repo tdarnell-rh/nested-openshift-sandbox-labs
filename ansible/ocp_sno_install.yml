@@ -12,7 +12,7 @@
     ocp_domain: "ocp.lab.example.com"
     ocp_api_ip: "192.168.122.10"
     ocp_ingress_ip: "192.168.122.10"
-    ocp_worker_node_name:
+    sno_worker_node_name:
       - ocp-0-s
     sno_node_0_ip: "192.168.122.10"
     vm_sno_worker_vcpus: 16
