@@ -16,6 +16,7 @@
         state: up
         ip:
           dhcp4: false
+          auto6: false
           address:
             - 192.168.122.2/24
           gateway4: 192.168.122.1
