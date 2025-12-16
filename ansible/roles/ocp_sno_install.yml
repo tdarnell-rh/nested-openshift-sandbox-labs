@@ -1,0 +1,22 @@
+---
+- name: Install SNO OCP via libvirt
+  hosts: kvm_target
+  become: true
+  vars_files:
+    - sens_vars.yml
+  vars:
+    libvirt_isos_dir: "/var/lib/libvirt/images"
+    ocp_version: "4.20.3"
+    ocp_type: "sno"
+    ocp_cluster_prefix: "sno"
+    ocp_domain: "ocp.lab.example.com"
+    ocp_api_ip: "192.168.122.10"
+    ocp_ingress_ip: "192.168.122.10"
+    ocp_worker_node_name:
+      - ocp-0-s
+    sno_node_0_ip: "192.168.122.10"
+    vm_sno_worker_vcpus: 16
+    vm_sno_worker_mem_mb: 36864
+    vm_sno_worker_data1_size_mb: 122280
+  roles:
+    - ocp-vm-build
