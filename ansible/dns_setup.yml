@@ -69,3 +69,6 @@
       ansible.builtin.service:
         name: NetworkManager
         state: restarted
+
+    - name: Set DNS VM to autostart with KVM host
+      ansible.builtin.command: "virsh autostart dns"
