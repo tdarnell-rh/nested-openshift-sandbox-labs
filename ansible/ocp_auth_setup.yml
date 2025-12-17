@@ -1,0 +1,10 @@
+---
+- name: Configure OCP Cluster auth
+  hosts: kvm_target
+  become: false
+  tasks:
+    - name: Configure cluster for htpasswd authentication
+      ansible.builtin.shell: |
+        oc create secret generic htpass-secret --from-file=~/working/nested-openshift-sandbox-labs/files/auth/users.htpasswd -n openshift-config
+        oc apply -f ~/working/nested-openshift-sandbox-labs/files/auth/htpass_identity.yml
+        oc adm policy add-role-to-user cluster-admin admin
