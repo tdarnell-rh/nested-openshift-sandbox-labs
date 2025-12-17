@@ -3,8 +3,54 @@
   hosts: kvm_target
   become: false
   tasks:
+    - name: Get the oauth pod name pre-IdP config
+      ansible.builtin.shell: "oc get pod -n openshift-authentication --no-headers | awk '{ print $1 }'"
+      register: oauth_pod_orig
+
     - name: Configure cluster for htpasswd authentication
       ansible.builtin.shell: |
-        oc create secret generic htpass-secret --from-file=~/working/nested-openshift-sandbox-labs/files/auth/users.htpasswd -n openshift-config
-        oc apply -f ~/working/nested-openshift-sandbox-labs/files/auth/htpass_identity.yml
-        oc adm policy add-role-to-user cluster-admin admin
+        oc create secret generic htpass-secret --from-file=htpasswd=working/nested-openshift-sandbox-labs/files/auth/users.htpasswd -n openshift-config
+        oc apply -f working/nested-openshift-sandbox-labs/files/auth/htpass_identity.yml
+        oc adm policy add-cluster-role-to-user cluster-admin admin
+
+    - name: Test IdP Until Success
+      block:
+        - name: Wait for old oauth pod to become Terminating
+          ansible.builtin.shell: "oc get pod -n openshift-authentication --no-headers | grep Terminating | awk '{ print $1 }'"
+          register: oauth_pod_orig_term
+          until: oauth_pod_orig.stdout == oauth_pod_orig_term.stdout
+          retries: 60
+          delay: 10
+
+        - name: Wait for new oauth pod to become Pending
+          ansible.builtin.shell: "oc get pod -n openshift-authentication --no-headers | grep Pending | awk '{ print $1 }'"
+          register: oauth_pod_new_pending
+          until: oauth_pod_new_pending.stdout != ""
+          retries: 60
+          delay: 10
+
+        - name: Wait for new oauth pod to become Running
+          ansible.builtin.shell: "oc get pod -n openshift-authentication --no-headers | grep Running | awk '{ print $1 }'"
+          register: oauth_pod_new_running
+          until: oauth_pod_new_pending.stdout == oauth_pod_new_running.stdout
+          retries: 60
+          delay: 10
+
+        - name: Wait for the authentication clusteroperator to stop progressing
+          ansible.builtin.shell: "oc get clusteroperators authentication --no-headers | awk '{ print $4}'"
+          register: auth_cs_status
+          until: auth_cs_status.stdout == "False"
+          retries: 60
+          delay: 10
+
+        - name: Attempt a login
+          ansible.builtin.shell: |
+            oc login -u admin -p sandbox
+            oc get users admin
+            oc get identity ocp_htpasswd_provider:admin
+          retries: 60
+          delay: 10
+
+
+
+
