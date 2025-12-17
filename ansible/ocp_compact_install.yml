@@ -1,0 +1,26 @@
+---
+- name: Install Compact OCP via libvirt
+  hosts: kvm_target
+  become: true
+  vars_files:
+    - sens_vars.yml
+  vars:
+    libvirt_isos_dir: "/var/lib/libvirt/images"
+    ocp_version: "4.20.3"
+    ocp_type: "compact"
+    ocp_cluster_prefix: "compact"
+    ocp_domain: "ocp.lab.example.com"
+    ocp_api_ip: "192.168.122.33"
+    ocp_ingress_ip: "192.168.122.34"
+    compact_node_names:
+      - ocp-0-c
+      - ocp-1-c
+      - ocp-2-c 
+    compact_node_0_ip: "192.168.122.30"
+    compact_node_1_ip: "192.168.122.31"
+    compact_node_2_ip: "192.168.122.32"
+    vm_compact_worker_vcpus: 8
+    vm_compact_worker_mem_mb: 18432
+    vm_compact_worker_data2_size_mb: 122280
+  roles:
+    - ocp-vm-build

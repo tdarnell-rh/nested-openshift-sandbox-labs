@@ -1,0 +1,27 @@
+---
+- name: Install TNA OCP via libvirt
+  hosts: kvm_target
+  become: true
+  vars_files:
+    - sens_vars.yml
+  vars:
+    libvirt_isos_dir: "/var/lib/libvirt/images"
+    ocp_version: "4.20.3"
+    ocp_type: "tna"
+    ocp_cluster_prefix: "tna"
+    ocp_domain: "ocp.lab.example.com"
+    ocp_api_ip: "192.168.122.23"
+    ocp_ingress_ip: "192.168.122.24"
+    tna_worker_node_names:
+      - ocp-0-t
+      - ocp-1-t
+    tna_arbiter_node_name:
+      - artibter-t
+    tna_node_0_ip: "192.168.122.20"
+    tna_node_1_ip: "192.168.122.21"
+    tna_node_arbiter_ip: "192.168.122.22"
+    vm_tna_worker_vcpus: 10
+    vm_tna_worker_mem_mb: 24576
+    vm_tna_worker_data2_size_mb: 122280
+  roles:
+    - ocp-vm-build
