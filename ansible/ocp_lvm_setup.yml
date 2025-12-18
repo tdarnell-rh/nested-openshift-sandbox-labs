@@ -35,12 +35,12 @@
       ansible.builtin.shell: "oc create -f working/nested-openshift-sandbox-labs/files/operators/lvm/lvm_cluster.yml"
 
     - name: Wait until the LVMCluster is created
-      ansible.builtin.shell: "oc get lvmclusters -n openshift-lvm-storage --no-headers | awk '{ print $3 }'"
+      ansible.builtin.shell: "oc get lvmclusters -n openshift-lvm-storage --no-headers | awk '{ print $2 }'"
       register: lvm_cluster_status
       until: lvm_cluster_status.stdout == "Ready"
       retries: 60
       delay: 10
 
-      
+
     
     
