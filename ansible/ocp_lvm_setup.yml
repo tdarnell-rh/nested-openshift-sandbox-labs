@@ -19,7 +19,7 @@
       retries: 60
       delay: 10
 
-    - name: Get the installPlay for lvms-operator
+    - name: Get the installPlan for lvms-operator
       ansible.builtin.shell: "oc get installplans -n openshift-lvm-storage --no-headers | awk '{ print $1 }'"
       register: lvm_installplan
 
@@ -30,6 +30,8 @@
       ansible.builtin.shell: "oc get csv -n openshift-lvm-storage --no-headers | awk '{ print $5 }'"
       register: lvms_operator_phase
       until: lvms_operator_phase == "Succeeded"
+      retries: 60
+      delay: 10
 
     - name: Create the LVMCluster resource
       ansible.builtin.shell: "oc create -f working/nested-openshift-sandbox-labs/files/operators/lvm/lvm_cluster.yml"
