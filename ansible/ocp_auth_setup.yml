@@ -19,8 +19,8 @@
           ansible.builtin.shell: "oc get pod -n openshift-authentication --no-headers | grep Terminating | awk '{ print $1 }'"
           register: oauth_pod_orig_term
           until: oauth_pod_orig.stdout == oauth_pod_orig_term.stdout
-          retries: 60
-          delay: 10
+          retries: 300
+          delay: 1
 
         - name: Wait for new oauth pod to become Pending
           ansible.builtin.shell: "oc get pod -n openshift-authentication --no-headers | grep Pending | awk '{ print $1 }'"
@@ -50,7 +50,3 @@
             oc get identity ocp_htpasswd_provider:admin
           retries: 60
           delay: 10
-
-
-
-
