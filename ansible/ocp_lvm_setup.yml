@@ -43,6 +43,13 @@
       retries: 60
       delay: 10
 
+    - name: Wait for the openshift-controller-manager clusteroperator to stop progressing
+      ansible.builtin.shell: "oc get clusteroperators openshift-controller-manager --no-headers | awk '{ print $4}'"
+      register: ocm_status
+      until: ocm_status.stdout == "False"
+      retries: 60
+      delay: 10
+
 
     
     
