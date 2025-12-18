@@ -16,7 +16,7 @@
       - ocp-0-t
       - ocp-1-t
     tna_arbiter_node_name:
-      - artibter-t
+      - arbiter-t
     tna_node_0_ip: "192.168.122.20"
     tna_node_1_ip: "192.168.122.21"
     tna_node_arbiter_ip: "192.168.122.22"
