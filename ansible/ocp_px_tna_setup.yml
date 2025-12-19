@@ -56,3 +56,10 @@
       until: px_tna_stc_status.stdout == "Running"
       retries: 60
       delay: 10
+
+    - name: Disable callhome for PX Cluster so we don't spam Portworx 
+      ansible.builtin.shell: "oc exec -it -n portworx $(oc get pod -n portworx -l name=portworx | grep Running | awk '{ print $1 }' | head -n1) -- /bin/bash -c \"pxctl service call-home disable\""
+      register: px_disable_callhome
+      until: px_disable_callhome.stdout == "Call home feature successfully disabled"
+      retries: 10
+      delay: 5
