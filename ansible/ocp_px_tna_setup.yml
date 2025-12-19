@@ -50,9 +50,9 @@
     - name: Create the TNA StorageCluster resource
       ansible.builtin.shell: "oc create -f working/nested-openshift-sandbox-labs/files/operators/portworx/px_tna_storage_cluster.yml"
 
-#    - name: Wait until the HyperConverged resource is created
-#      ansible.builtin.shell: "oc get hyperconverged/kubevirt-hyperconverged -n openshift-cnv -o jsonpath='{.status.systemHealthStatus}'"
-#      register: hco_hyperconverged_status
-#      until: hco_hyperconverged_status.stdout == "healthy"
-#      retries: 60
-#      delay: 10
+    - name: Wait until the Portworx storage cluster is ready
+      ansible.builtin.shell: "oc get storagecluster -n portworx --no-headers | awk '{ print $3 }'"
+      register: px_tna_stc_status
+      until: px_tna_stc_status.stdout == "Running"
+      retries: 60
+      delay: 10
