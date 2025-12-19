@@ -21,7 +21,7 @@
     tna_node_1_ip: "192.168.122.21"
     tna_node_arbiter_ip: "192.168.122.22"
     vm_tna_worker_vcpus: 8
-    vm_tna_worker_mem_mb: 18432
+    vm_tna_worker_mem_mb: 20480
     vm_tna_worker_data2_size_mb: 122280
   roles:
     - ocp-vm-build
