@@ -4,7 +4,7 @@
   become: false
   tasks:
     - name: Create the namespace for portworx-certified Operator
-      ansible.builtin.shell: "oc create ns openshift-cnv"
+      ansible.builtin.shell: "oc create ns portworx"
 
     - name: Create the portworx-certified OperatorGroup
       ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/portworx/px_operatorgroup.yml"
