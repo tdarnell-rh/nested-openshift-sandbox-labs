@@ -63,3 +63,6 @@
       until: px_disable_callhome.stdout == "Call home feature successfully disabled"
       retries: 10
       delay: 5
+
+    - name: Create the Portworx StorageClasses with repl2 only
+      ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/portworx/px_kubevirt_tna_sc.yml"

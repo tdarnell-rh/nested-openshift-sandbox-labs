@@ -10,6 +10,7 @@ metadata:
     portworx.io/misc-args: " -T px-storev2 "
     portworx.io/preflight-check: "skip"
     portworx.io/health-check: "skip"
+    portworx.io/disable-storage-class: "true"
 spec:
   image: portworx/oci-monitor:3.5.0
   imagePullPolicy: Always

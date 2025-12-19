@@ -72,3 +72,13 @@
 
     - name: Set DNS VM to autostart with KVM host
       ansible.builtin.command: "virsh autostart dns"
+
+    - name: Configure the kernel boot parameters to reduce async PF kernel panics
+      ansible.builtin.lineinfile:
+        path: /etc/kernel/cmdline
+        search_string: 'root=/dev/mapper/fedora-root ro rd.lvm.lv=fedora/root rhgb quiet'
+        line: 'root=/dev/mapper/fedora-root ro rd.lvm.lv=fedora/root no-kvmapf kvm-intel.nested=1 kvm-amd.nested=1 rhgb quiet'
+
+    - name: Regenerate boot entry for kernel
+      ansible.builtin.shell: "kernel-install add-all"
+
