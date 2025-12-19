@@ -1,0 +1,44 @@
+---
+- name: Configure Portworx Enterprise on OCP (TNA)
+  hosts: kvm_target
+  become: false
+  tasks:
+    - name: Create the namespace for portworx-certified Operator
+      ansible.builtin.shell: "oc create ns openshift-cnv"
+
+    - name: Create the portworx-certified OperatorGroup
+      ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/portworx/px_operatorgroup.yml"
+
+    - name: Create the portworx-certified Subscription
+      ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/portworx/px_subscription.yml"
+
+    - name: Ensure the installPlan for portworx-certified instantiates
+      ansible.builtin.shell: "oc get installplans -n portworx --no-headers | awk '{ print $4 }'"
+      register: px_installplan_approval
+      until: px_installplan_approval.stdout == "false"
+      retries: 60
+      delay: 10
+
+    - name: Get the installPlan for portworx-certified
+      ansible.builtin.shell: "oc get installplans -n portworx --no-headers | awk '{ print $1 }'"
+      register: px_installplan
+
+    - name: Approve the installPlan for portworx-certified Operator 
+      ansible.builtin.shell: "oc patch installplan {{ px_installplan.stdout }} -n portworx --type merge --patch '{\"spec\":{\"approved\":true}}'"
+
+    - name: Check that the portworx-certified operator install was successful
+      ansible.builtin.shell: "oc get csv -n portworx --no-headers | awk '{ print $5 }'"
+      register: px_operator_phase
+      until: px_operator_phase.stdout == "Succeeded"
+      retries: 60
+      delay: 10
+
+    - name: Create the TNA StorageCluster resource
+      ansible.builtin.shell: "oc create -f working/nested-openshift-sandbox-labs/files/operators/portworx/px_tna_storage_cluster.yml"
+
+#    - name: Wait until the HyperConverged resource is created
+#      ansible.builtin.shell: "oc get hyperconverged/kubevirt-hyperconverged -n openshift-cnv -o jsonpath='{.status.systemHealthStatus}'"
+#      register: hco_hyperconverged_status
+#      until: hco_hyperconverged_status.stdout == "healthy"
+#      retries: 60
+#      delay: 10

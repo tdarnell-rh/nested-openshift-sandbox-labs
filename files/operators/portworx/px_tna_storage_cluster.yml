@@ -1,0 +1,66 @@
+---
+kind: StorageCluster
+apiVersion: core.libopenstorage.org/v1
+metadata:
+  name: px-cluster
+  namespace: portworx
+  annotations:
+    portworx.io/is-openshift: "true"
+    portworx.io/run-on-master: "true"
+    portworx.io/misc-args: " -T px-storev2 "
+    portworx.io/preflight-check: "skip"
+    portworx.io/health-check: "skip"
+spec:
+  image: portworx/oci-monitor:3.5.0
+  imagePullPolicy: Always
+  kvdb:
+    internal: true
+  nodes:
+  - selector:
+      labelSelector:
+        matchLabels:
+          kubernetes.io/hostname: ocp-0-t.tna.ocp.lab.example.com
+    storage:
+      systemMetadataDevice: /dev/nvme0n1
+      devices:
+        - /dev/nvme1n1
+  - selector:
+      labelSelector:
+        matchLabels:
+          kubernetes.io/hostname: ocp-1-t.tna.ocp.lab.example.com
+    storage:
+      systemMetadataDevice: /dev/nvme0n1
+      devices:
+        - /dev/nvme1n1
+  - selector:
+      labelSelector:
+        matchLabels:
+          kubernetes.io/hostname: arbiter-t.tna.ocp.lab.example.com 
+    storage:
+      devices: []
+      kvdbDevice: /dev/nvme0n1
+      useAll: false
+  placement:
+    tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/arbiter
+  secretsProvider: k8s
+  startPort: 17001
+  stork:
+    enabled: true
+    args:
+      webhook-controller: "true"
+  autopilot:
+    enabled: true
+  csi:
+    enabled: true
+  monitoring:
+    telemetry:
+      enabled: false
+    prometheus:
+      enabled: true
+      exportMetrics: true
