@@ -5,7 +5,7 @@ metadata:
   annotations:
     storageclass.kubevirt.io/is-default-virt-class: "true"
     storageclass.kubernetes.io/is-default-class: "true"
-  name: px-rwx-block-kubevirt
+  name: px-rwx-block-kubevirt-tna
 parameters:
   repl: "2"
 provisioner: pxd.portworx.com
@@ -17,7 +17,7 @@ allowVolumeExpansion: true
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: px-rwx-file-kubevirt
+  name: px-rwx-file-kubevirt-tna
 parameters:
   repl: "2"
   sharedv4: "true"
@@ -31,7 +31,7 @@ allowVolumeExpansion: true
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: px-cdi-scratch
+  name: px-cdi-scratch-tna
 parameters:
   repl: "1"
   sharedv4: "true"
