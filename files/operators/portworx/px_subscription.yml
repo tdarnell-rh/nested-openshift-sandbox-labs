@@ -4,6 +4,7 @@ metadata:
   name: portworx-certified
   namespace: portworx
 spec:
+  channel: stable
   installPlanApproval: Manual
   name: portworx-certified
   source: certified-operators
