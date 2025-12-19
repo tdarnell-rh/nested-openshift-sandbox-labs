@@ -40,9 +40,9 @@
       ansible.builtin.shell: |
         oc label node arbiter-t.tna.ocp.lab.example.com portworx.io/node-type=storageless
         oc label node ocp-0-t.tna.ocp.lab.example.com portworx.io/node-type=storage
-		    oc label node ocp-1-t.tna.ocp.lab.example.com portworx.io/node-type=storage
-		    oc label node ocp-0-t.tna.ocp.lab.example.com portworx.io/run-on-master=true
-		    oc label node ocp-1-t.tna.ocp.lab.example.com portworx.io/run-on-master=true
+        oc label node ocp-1-t.tna.ocp.lab.example.com portworx.io/node-type=storage
+        oc label node ocp-0-t.tna.ocp.lab.example.com portworx.io/run-on-master=true
+        oc label node ocp-1-t.tna.ocp.lab.example.com portworx.io/run-on-master=true
 
     - name: Enable the Portworx Console Plugin
       ansible.builtin.shell: oc patch console.operator cluster --type=json -p='[{"op":"add","path":"/spec/plugins/-","value":"portworx"}]'
