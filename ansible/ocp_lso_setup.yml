@@ -34,9 +34,18 @@
       delay: 10
 
     - name: Label the nodes so the local-storage-operator can use their disks
-      ansible.builtin.shell: "oc label node ocp-0-c ocp-1-c ocp-2-c cluster.ocs.openshift.io/openshift-storage=''"
+      ansible.builtin.shell: "oc label node ocp-0-c.compact.ocp.lab.example.com ocp-1-c.compact.ocp.lab.example.com ocp-2-c.compact.ocp.lab.example.com cluster.ocs.openshift.io/openshift-storage=''"
 
     - name: Create the LSO StorageClass and Volume Set
       ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/lso/lso_localvolume.yml"
+
+    - name: Ensure the local volume set PVs were created (and therefore, the StorageClass)
+      ansible.builtin.shell: "oc get pv --no-headers | grep local-pv | grep Available | grep local-volume-set-sc | wc -l"
+      register: num_lso_pvs
+      until: num_lso_pvs.stdout == "3"
+      retries: 60
+      delay: 5
+
+
 
     
