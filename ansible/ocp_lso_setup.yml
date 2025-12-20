@@ -20,7 +20,7 @@
       delay: 10
 
     - name: Get the installPlan for local-storage-operator
-      ansible.builtin.shell: "oc get installplans -n openshift-local storage --no-headers | awk '{ print $1 }'"
+      ansible.builtin.shell: "oc get installplans -n openshift-local-storage --no-headers | awk '{ print $1 }'"
       register: lso_installplan
 
     - name: Approve the installPlan for odf-operator
