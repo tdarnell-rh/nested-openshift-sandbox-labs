@@ -1,0 +1,38 @@
+---
+- name: Configure ODF Storage for OCP
+  hosts: kvm_target
+  become: false
+  tasks:
+    - name: Create the namespace for odf-operator
+      ansible.builtin.shell: "oc create ns openshift-storage"
+
+    - name: Create the ODF OperatorGroup
+      ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/odf/odf_operatorgroup.yml"
+
+    - name: Create the odf-operator Subscription
+      ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/odf/odf_subscription.yml"
+
+    - name: Ensure the installPlan for odf-operator instantiates
+      ansible.builtin.shell: "oc get installplans -n openshift-storage --no-headers | awk '{ print $4 }'"
+      register: odf_installplan_approval
+      until: odf_installplan_approval.stdout == "false"
+      retries: 60
+      delay: 10
+
+    - name: Get the installPlan for odf-operator
+      ansible.builtin.shell: "oc get installplans -n openshift-storage --no-headers | awk '{ print $1 }'"
+      register: odf_installplan
+
+    - name: Approve the installPlan for odf-operator
+      ansible.builtin.shell: "oc patch installplan {{ odf_installplan.stdout }} -n openshift-storage --type merge --patch '{\"spec\":{\"approved\":true}}'"
+
+    - name: Check that the odf-operator install was successful
+      ansible.builtin.shell: "oc get csv -n openshift-storage --no-headers | awk '{ print $5 }'"
+      register: odf_operator_phase
+      until: odf_operator_phase.stdout == "Succeeded"
+      retries: 60
+      delay: 10
+
+
+    
+    
