@@ -1,0 +1,27 @@
+---
+- name: Configure Local Storage Operator for ODF on OCP
+  hosts: kvm_target
+  become: false
+  tasks:
+    - name: Create the namespace for the Local Storage Operator
+      ansible.builtin.shell: "oc create ns openshift-local-storage"
+
+    - name: Create the local-storage-operator OperatorGroup
+      ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/lso/lso_operatorgroup.yml"
+
+    - name: Create the local-storage-operator Subscription
+      ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/lso/lso_subscription.yml"
+
+    - name: Ensure the installPlan for local-storage-operator instantiates
+      ansible.builtin.shell: "oc get installplans -n openshift-local-storage --no-headers | awk '{ print $4 }'"
+      register: lso_installplan_approval
+      until: lso_installplan_approval.stdout == "false"
+      retries: 60
+      delay: 10
+
+    - name: Get the installPlan for local-storage-operator
+      ansible.builtin.shell: "oc get installplans -n openshift-local storage --no-headers | awk '{ print $1 }'"
+      register: lso_installplan
+
+    - name: Approve the installPlan for odf-operator
+      ansible.builtin.shell: "oc patch installplan {{ lso_installplan.stdout }} -n openshift-local-storage --type merge --patch '{\"spec\":{\"approved\":true}}'"
