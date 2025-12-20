@@ -26,7 +26,7 @@
     - name: Approve the installPlan for odf-operator
       ansible.builtin.shell: "oc patch installplan {{ odf_installplan.stdout }} -n openshift-storage --type merge --patch '{\"spec\":{\"approved\":true}}'"
 
-    - name: Get the CSV suffix for currently installed ODF apiVersion
+    - name: Get the CSV suffix for currently installed ODF version
       ansible.builtin.shell: "oc get csv -n openshift-storage | grep odf-operator | awk '{ print $1 }' | cut -d '.' -f 2-"
       register: odf_suffix
 

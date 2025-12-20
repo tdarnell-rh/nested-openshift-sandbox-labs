@@ -23,13 +23,20 @@
       ansible.builtin.shell: "oc get installplans -n openshift-local-storage --no-headers | awk '{ print $1 }'"
       register: lso_installplan
 
-    - name: Approve the installPlan for odf-operator
+    - name: Approve the installPlan for local-storage-operator
       ansible.builtin.shell: "oc patch installplan {{ lso_installplan.stdout }} -n openshift-local-storage --type merge --patch '{\"spec\":{\"approved\":true}}'"
 
-    - name: Check that the lvms-operator install was successful
+    - name: Check that the local-storage-operator install was successful
       ansible.builtin.shell: "oc get csv -n openshift-local-storage -o jsonpath='{.items[0].status.phase}'"
       register: lso_operator_phase
       until: lso_operator_phase.stdout == "Succeeded"
       retries: 60
       delay: 10
 
+    - name: Label the nodes so the local-storage-operator can use their disks
+      ansible.builtin.shell: "oc label node ocp-0-c ocp-1-c ocp-2-c cluster.ocs.openshift.io/openshift-storage=''"
+
+    - name: Create the LSO StorageClass and Volume Set
+      ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/lso/lso_localvolume.yml"
+
+    
