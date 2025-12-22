@@ -1,0 +1,42 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    storageclass.kubevirt.io/is-default-virt-class: "true"
+    storageclass.kubernetes.io/is-default-class: "true"
+  name: px-rwx-block-kubevirt-3nc
+parameters:
+  repl: "3"
+provisioner: pxd.portworx.com
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: px-rwx-file-kubevirt-3nc
+parameters:
+  repl: "3"
+  sharedv4: "true"
+  sharedv4_mount_options: vers=3.0,nolock
+provisioner: pxd.portworx.com
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: px-cdi-scratch-3nc
+parameters:
+  repl: "1"
+  sharedv4: "true"
+  sharedv4_mount_options: vers=3.0,nolock
+provisioner: pxd.portworx.com
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
