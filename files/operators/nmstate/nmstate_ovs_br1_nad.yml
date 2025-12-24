@@ -1,0 +1,13 @@
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: br1-vm
+  namespace: default
+spec:
+  config: '{
+            "name":"br1-vm",
+            "type":"ovn-k8s-cni-overlay",
+            "cniVersion":"0.4.0",
+            "topology":"localnet",
+            "netAttachDefName": "default/br1-network"
+          }'
