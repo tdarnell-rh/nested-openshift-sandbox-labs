@@ -6,7 +6,7 @@
     - sens_vars.yml
   vars:
     libvirt_isos_dir: "/var/lib/libvirt/images"
-    ocp_version: "4.20.3"
+    ocp_version: "4.20.8"
     ocp_type: "tna"
     ocp_cluster_prefix: "tna"
     ocp_domain: "ocp.lab.example.com"
@@ -23,5 +23,119 @@
     vm_tna_worker_vcpus: 8
     vm_tna_worker_mem_mb: 20480
     vm_tna_worker_data2_size_mb: 122280
+    cluster_startup_timeout: 1800
+    
+## Deploy the OpenShift cluster using the ocp-vm-build role
   roles:
     - ocp-vm-build
+
+## Perform post-cluster installation tasks
+  tasks:
+    - name: Copy kubeconfig to ~/.kube/config
+      become: false
+      ansible.builtin.shell: |
+        mkdir -p /home/$(whoami)/.kube
+        cp {{ local_auth_folder }}/{{ inventory_hostname }}/tmp/{{ ocp_type }}-{{ ocp_cluster_prefix }}-installer/auth/kubeconfig /home/$(whoami)/.kube/config
+        echo "/home/$(whoami)/.kube/config"
+      register: kubeconfig
+
+    - name: Rotate certs for the cluster to allow shutdown/suspend
+      become: false
+      ansible.builtin.shell: |
+        oc apply -f working/nested-openshift-sandbox-labs/files/auth/certificate_rotation.yml
+        oc delete secrets/csr-signer-signer secrets/csr-signer -n openshift-kube-controller-manager-operator
+    
+    - name: Wait for the kube-apiserver clusteroperator to start progressing
+      become: false
+      ansible.builtin.shell: "oc get clusteroperators kube-apiserver --no-headers | awk '{ print $4}'"
+      register: kubeapi_status
+      until: kubeapi_status.stdout == "True"
+      retries: 60
+      delay: 10
+
+    - name: Wait for the kube-apiserver clusteroperator to stop progressing
+      become: false
+      ansible.builtin.shell: "oc get clusteroperators kube-apiserver --no-headers | awk '{ print $4}'"
+      register: kubeapi_status
+      until: kubeapi_status.stdout == "False"
+      retries: 60
+      delay: 10
+
+    - name: Issue shutdown for each node
+      become: true
+      loop: 
+        - "{{ tna_worker_node_names }}"
+        - "{{ tna_arbiter_node_name }}"
+      ansible.builtin.shell: virsh shutdown {{ item }}
+
+    - name: Wait for all nodes to be shutdown
+      become: true
+      loop:
+        - "{{ tna_worker_node_names }}"
+        - "{{ tna_arbiter_node_name }}"
+      ansible.builtin.shell: virsh domstate {{ item }}
+      register: poweroff_results
+      until: poweroff_results.stdout == "shut off"
+      retries: 60
+      delay: 10
+
+    - name: Permanently remove the CDROM from the nodes
+      become: true
+      loop:
+        - "{{ tna_worker_node_names }}"
+        - "{{ tna_arbiter_node_name }}"
+      ansible.builtin.shell: virt-xml {{ item }} --edit target=sda --disk path=""
+
+    - name: Power back on all of the nodes
+      become: true
+      loop:
+        - "{{ tna_worker_node_names }}"
+        - "{{ tna_arbiter_node_name }}"
+      ansible.builtin.shell: virsh start {{ item }}
+
+    - name: Wait for API server to be reachable
+      become: false
+      ansible.builtin.wait_for:
+        host: "api.{{ ocp_cluster_prefix }}.{{ ocp_domain }}"
+        port: 6443
+        state: started
+        delay: 10
+        timeout: "{{ cluster_startup_timeout }}"
+
+    - name: Ensure KUBECONFIG environment variable is set
+      become: false
+      ansible.builtin.set_fact:
+        kubeconfig_path: "{{ kubeconfig.stdout }}"
+        
+    - name: Wait for all nodes to be in the "Ready" state
+      become: false
+      kubernetes.core.k8s_info:
+        kind: Node
+        kubeconfig: "{{ kubeconfig_path }}"
+      register: node_list
+      until: 
+        - node_list.resources is defined
+        - node_list.resources | length > 0
+        - node_list.resources | map(attribute='status.conditions') | flatten | selectattr('type', 'equalto', 'Ready') | map(attribute='status') | unique | list == ['True']
+      retries: "{{ cluster_startup_timeout // 10 }}"
+      delay: 10
+
+    - name: Wait for all ClusterOperators to be "Available" and "Progressing" and "Degraded" conditions to be False
+      become: false
+      kubernetes.core.k8s_info:
+        api_version: config.openshift.io/v1
+        kind: ClusterOperator
+        kubeconfig: "{{ kubeconfig_path }}"
+      register: co_list
+      until:
+        - co_list.resources is defined
+        - co_list.resources | length > 0
+        - co_list.resources | map(attribute='status.conditions') | flatten | selectattr('type', 'equalto', 'Available') | map(attribute='status') | unique | list == ['True']
+        - co_list.resources | map(attribute='status.conditions') | flatten | selectattr('type', 'equalto', 'Progressing') | map(attribute='status') | unique | list == ['False']
+        - co_list.resources | map(attribute='status.conditions') | flatten | selectattr('type', 'equalto', 'Degraded') | map(attribute='status') | unique | list == ['False']
+      retries: "{{ cluster_startup_timeout // 30 }}"
+      delay: 30
+
+    - name: OpenShift cluster is ready
+      ansible.builtin.debug:
+        msg: "The OpenShift cluster is fully ready for operations."
