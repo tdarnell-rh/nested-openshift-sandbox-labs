@@ -107,7 +107,7 @@
       retries: "{{ cluster_startup_timeout // 10 }}"
       delay: 10
 
-    - name: Wait for all ClusterOperators to be "Available" and "Progressing" and "Degraded" conditions to be False
+    - name: Wait for all ClusterOperators to be "Available", and for "Progressing" and "Degraded" conditions to be False
       become: false
       kubernetes.core.k8s_info:
         api_version: config.openshift.io/v1
