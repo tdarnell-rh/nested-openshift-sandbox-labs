@@ -134,6 +134,24 @@
       retries: "{{ cluster_startup_timeout // 30 }}"
       delay: 30
 
+    - name: Wait for console to be reachable
+      become: false
+      ansible.builtin.wait_for:
+        host: "console-openshift-console.apps.{{ ocp_cluster_prefix }}.{{ ocp_domain }}"
+        port: 443
+        state: started
+        delay: 10
+        timeout: "{{ cluster_startup_timeout }}"
+
+    - name: Wait for oauth to be reachable
+      become: false
+      ansible.builtin.wait_for:
+        host: "oauth-openshift.apps.{{ ocp_cluster_prefix }}.{{ ocp_domain }}"
+        port: 443
+        state: started
+        delay: 10
+        timeout: "{{ cluster_startup_timeout }}"
+
     - name: OpenShift cluster is ready
       ansible.builtin.debug:
         msg: "The OpenShift cluster is fully ready for operations."
