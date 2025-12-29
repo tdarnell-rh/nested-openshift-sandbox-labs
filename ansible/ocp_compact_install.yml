@@ -20,7 +20,7 @@
     compact_node_1_ip: "192.168.122.31"
     compact_node_2_ip: "192.168.122.32"
     vm_compact_worker_vcpus: 8
-    vm_compact_worker_mem_mb: 18432
+    vm_compact_worker_mem_mb: 16384
     vm_compact_worker_data2_size_mb: 122280
     cluster_startup_timeout: 1800
 
@@ -78,6 +78,13 @@
       become: true
       loop: "{{ compact_node_names }}"
       ansible.builtin.shell: virt-xml {{ item }} --edit target=sda --disk path=""
+
+    - name: Bump memory to 19GB per node
+      become: true
+      loop: "{{ compact_node_names }}"
+      ansible.builtin.shell: |
+        virsh setmaxmem {{ item }} 19922944 --config
+        virsh setmem {{ item }} 19922944 --config
 
     - name: Power back on all of the nodes
       become: true
