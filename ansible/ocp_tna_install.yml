@@ -22,7 +22,7 @@
     tna_node_arbiter_ip: "192.168.122.22"
     vm_tna_worker_vcpus: 8
     vm_tna_worker_mem_mb: 16384
-    vm_tna_worker_data2_size_mb: 122280
+    vm_tna_worker_data2_size_mb: 40960
     cluster_startup_timeout: 1800
     
 ## Deploy the OpenShift cluster using the ocp-vm-build role

@@ -1,4 +1,5 @@
 ---
+### This configuration is not usable - yet. Need minimal ODF configuraiton or more CPU/RAM and storage per node
 - name: Configure ODF Storage for OCP
   hosts: kvm_target
   become: false
