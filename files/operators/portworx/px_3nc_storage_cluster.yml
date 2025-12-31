@@ -22,25 +22,25 @@ spec:
         matchLabels:
           kubernetes.io/hostname: ocp-0-c.compact.ocp.lab.example.com
     storage:
-      systemMetadataDevice: /dev/nvme0n1
+      systemMetadataDevice: /dev/disk/by-id/nvme-QEMU_NVMe_Ctrl_nvmedata1
       devices:
-        - /dev/nvme1n1
+        - /dev/disk/by-id/nvme-QEMU_NVMe_Ctrl_nvmedata2
   - selector:
       labelSelector:
         matchLabels:
           kubernetes.io/hostname: ocp-1-c.compact.ocp.lab.example.com
     storage:
-      systemMetadataDevice: /dev/nvme0n1
+      systemMetadataDevice: /dev/disk/by-id/nvme-QEMU_NVMe_Ctrl_nvmedata1
       devices:
-        - /dev/nvme1n1
+        - /dev/disk/by-id/nvme-QEMU_NVMe_Ctrl_nvmedata2
   - selector:
       labelSelector:
         matchLabels:
           kubernetes.io/hostname: ocp-2-c.compact.ocp.lab.example.com 
     storage:
-      systemMetadataDevice: /dev/nvme0n1
+      systemMetadataDevice: /dev/disk/by-id/nvme-QEMU_NVMe_Ctrl_nvmedata1
       devices:
-        - /dev/nvme1n1
+        - /dev/disk/by-id/nvme-QEMU_NVMe_Ctrl_nvmedata2
   placement:
     tolerations:
     - effect: NoSchedule
