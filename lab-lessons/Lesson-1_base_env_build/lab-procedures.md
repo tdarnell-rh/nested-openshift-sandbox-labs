@@ -1,7 +1,7 @@
 # Nested OpenShift Sandbox Labs
 ## Lesson 1 - Base Environment Build
 
-### Welcome
+## Welcome
 Thanks for checking out this lab series! You probably got here from my [introduction LinkedIn post](https://www.linkedin.com/pulse/nested-openshift-sandbox-labs-introduction-tim-darnell-ea29c/), or from someone sharing the link with you - either way, welcome!
 
 A bit of background - I started building these for a couple of reasons. I wanted to build my Ansible skills as I was taking my RHCE (EX200) exam - but I also wanted to create some automation to easily stand up environments on my laptop for my OpenShift training I'm required to go through as a specialist at Red Hat. So, I figured I would marry the two - and this became the result.
@@ -10,7 +10,7 @@ This is built to only run on libvirt/KVM - if you're looking for OpenShift deplo
 
 That being said - these labs aren't solely for vSphere admins - anybody can use them or contribute to them! Many vSphere folks I know haven't had strong backgrounds in Linux - so if you are someone already in the cloud native ecosystem, or are just wanting to play around - apologies in advance. We are going to cover some very basic Linux sysadmin concepts here so that we can grow this amazing community we have in cloud native. If you're one of those people, and you feel like something is misrepresented or incorrect - PLEASE call it out, file a PR, contact me. These are NOT going to be perfect - but with community contributions, they can be pretty close!
 
-### Topics Covered in Lesson 1
+## Topics Covered in Lesson 1
 This is a foundational setup that will support all of the rest of the lab lessons that will be documented in this repository - we're not even going to cover OpenShift installation in this lesson. What we will cover:
 
 - Installation and configuration of Linux VMs
@@ -19,7 +19,7 @@ This is a foundational setup that will support all of the rest of the lab lesson
 - Red Hat Developer accounts
 - Ansible automation basics
 
-### Requirements
+## Requirements
 Please review the requirements in the "What Do I Need For This?" section of my [introduction LinkedIn post](https://www.linkedin.com/pulse/nested-openshift-sandbox-labs-introduction-tim-darnell-ea29c/). Again, I developed these labs on my Lenovo 21KWS laptop with 22 threads and 64GB of memory - they don't run super fast, but they are usable to learn some basics.
 
 My "new to me" machine just arrived today (AMD Strix Halo with 128GB and 4TB of NVMe) - so I'll be testing these procedures on that as I polish up this lesson. In the future, I'll be loading Proxmox onto my secondary NVMe drive and testing everything with Proxmox as the base hypervisor host, but for now - everything has been developed with KVM as the base underlying hypervisor hosting the Fedora KVM host.
@@ -28,9 +28,13 @@ If you've not worked in nested VM environments before, just a disclaimer - somet
 
 Enough of my intro blabber - let's get started!
 
-### Sign up for a Red Hat Developer Account
-First, if you don't have a Red Hat Developer account - let's get you one. Red Hat gives you access to most all of the technology you will need to learn OpenShift Virtualization, Ansible, and other Red Hat goodness - all for free to run in test environments.
+## Sign up for a Red Hat Developer Account
+**Why are we doing this?**  
+Red Hat gives you access to most all of the technology you will need to learn OpenShift Virtualization, Ansible, and other Red Hat goodness - all for free to run in test environments. We need a Developer account in these lab lessons for the following reasons:
+- We need to pull down the official Red Hat Ansible Automation Platform (AAP) container image for our Ansible execution environment, and a Red Hat Developer account grants you access to login to the registry that houses this container image
+- We need a "pull secret" once we get to deploying OpenShift, and a Red Hat Developer account gives you access to your own personal pull secret
 
+**How to do it:**  
 Navigate to https://developers.redhat.com/ and click on the "Register for an account button":
 ![Red Hat Developer Account Signup](/lab-lessons/Lesson-1_base_env_build/images/RH_Dev_Account_Signup.png)
 
@@ -39,7 +43,18 @@ Fill out your information and check your email to validate your account. Then co
 
 Keep your login information handy for later, as we'll need it when we configure Ansible and prep for our OpenShift cluster install.
 
-### Creating the KVM host VM
+**More Information:**  
+You can find additional information on the great benefits that a Red Hat Developer account grants you [here](https://developers.redhat.com/articles/faqs-no-cost-red-hat-enterprise-linux#).
+
+
+## Creating the KVM host VM
+**Why are we doing this?**  
+This VM is the core of these labs - it will be the virtualization host that all other VMs (nested) will be running on. This VM will also act as the bastion host which you'll access the OpenShift environments from. You'll want to make sure that:
+- You have a static IP to assign this host on your "Physical Network" subnet
+- You have decent console access to this VM from your workstation, as you'll be accessing the OpenShift environments from it
+- It can live for the duration of your learning experience, since all other VMs will be contained within it
+
+**How to do it:**  
 We're going to use Fedora 43 Server for our KVM host to house the lab environments. Grab the ISO from https://download.fedoraproject.org/pub/fedora/linux/releases/43/Server/x86_64/iso/Fedora-Server-dvd-x86_64-43-1.6.iso.
 
 Next, create a VM on your ESXi host, VMware workstation instance, Proxmox machine, wherever you can create a VM that has decent resource availability. Keep in mind we'll be running triple-nested VMs - so the more performant this base VM is, the better. If you feel like allocating more than the 24vCPU, 64GB of RAM, and ~700GB of NVMe/SSD-backed storage, then cool! 
@@ -50,8 +65,17 @@ The critical thing is to have the one vNIC on the VM that has a static IP on you
 We'll be building out the following base hypervisor VM in this lesson to host all of our nested OpenShift environments:
 ![Base Environment for Nested OpenShift Sandbox Labs](/lab-lessons/Lesson-1_base_env_build/images/Fedora-nested-ocp-fedora-kvm.png)
 
+**More Information:**  
+You can find additional information on the Fedora Project [here](https://www.fedoraproject.org/).
 
-### Installing Fedora 43 Server
+
+## Installing Fedora 43 Server
+**Why are we doing this?**  
+We're installing Fedora 43 Server this way to show you a "traditional" way of installing Fedora onto a VM that you might be used to in vSphere. This will entail:
+- Mounting an installation ISO to the VM and going through the installation process using Anaconda (a graphical Linux installer)
+- Showing you the options for installation such as target disk, network configuration, NTP/time configuration, and root/user account creation
+
+**How to do it:**  
 Mount the Fedora 43 Server ISO to the VM and boot from it to start anaconda (the graphical installer). Select your installation language and keyboard layout and click Continue:
 ![Anaconda Installer Welcome Screen](/lab-lessons/Lesson-1_base_env_build/images/Anaconda_Welcome_Screen.png)
 
@@ -79,8 +103,21 @@ Finally, click on "User Creation" and create yourself an account. Ensure both ch
 Click the "Begin Installation" button in the lower right corner, and wait for the install to complete. Once complete, the "Reboot System" button will appear - click it and let's get to configuring our hypervisor host!
 ![Anaconda Install Complete](/lab-lessons/Lesson-1_base_env_build/images/Anaconda_Reboot.png)
 
+**More Information:**  
+You can find the Fedora Server installation guide from the Fedora Project [here](https://docs.fedoraproject.org/en-US/fedora-server/installation/).
 
-### Configuring Fedora 43 Server
+
+## Configuring Fedora 43 Server
+**Why are we doing this?**  
+We need to make this VM usable as a bastion host so that you have a graphical interface to interact with, since access to OpenShift is either via CLI using the `oc` command, or by the OpenShift Console web interface. I'm not going to expose you to a huge amount of CLI since you are probably used to a web interface coming from the vSphere landscape. 
+
+In this step, we will:
+- Install and enable GNOME, a graphical environment commonly used with Fedora Linux
+- Set the system to boot into the graphical environment by default
+- Modify the desktop with shortcuts to programs we'll use
+- Reconfigure the gnome-terminal application to be easily readable and usable as you utilize the Fedora 43 Server VM as a bastion host
+
+**How to do it:**  
 You'll be greeted by a terminal login prompt once the VM reboots. Login with the root password that you set for the system:
 ![Initial Login to the Fedora System](/lab-lessons/Lesson-1_base_env_build/images/Fedora_KVM_Initial_Login.png)
 
@@ -114,7 +151,26 @@ Select the "Unnamed" profile in the left pane of the Preferences dialog, and che
 
  That's it for the basic setup to make the VM usable as a bastion host for now. Let's get to installing Ansible so that we can automate!
 
-### Configuring Ansible on the Fedora 43 Server VM
+ **More information:**  
+You can find more information on GNOME [here](https://www.gnome.org/). For information about controlling targets that your Linux server boots into (text or graphical), you can read [this blog](https://www.redhat.com/en/blog/configure-systemd-startup-targets).
+
+## Configuring Ansible on the Fedora 43 Server VM
+**Why are we doing this?**  
+Ansible is a powerful automation platform that is used extensively throughout these lab lessons. Since you are likely coming from the vSphere landscape, you can think of Ansible similar to PowerShell. Since we need consistency to run our automation routines, it makes sense to configure Ansible on the Fedora 43 Server VM since it's really the foundation of our labs.
+
+We will do the following to setup Ansible on the bastion/KVM host:
+- Create an Ansible "working directory" in your home directory on the bastion host
+- Install Ansible Navigator and Kubernetes python modules via pip3 (Python Package Installer)
+- Start using `vi`, a common text editor used within terminals in Linux
+- Create an `ansible-navigator.yml` file with configuration directives that will tell ansible-navigator how to execute, and what ansible container image to use
+- Create an `ansible.cfg` file, which will tell Ansible what default behavior should be when running playbooks, where our Ansible inventory file is, where to find installed Ansible roles and collections (which we'll use to install OpenShift), and define privilege escalation parameters for playbooks
+- Create an `inventory` file, which will define the hosts that we want to execute automation routines on
+- Create the destination folders for our Ansible roles and collections
+- Configure SSH for Ansible to use as a method for executing automation on our Ansible inventory targets
+- Test login to `registry.redhat.io` with your Red Hat Developer account, which is where the Ansible container image is located that ansible-navigator will pull down
+- Install a few common Ansible collections that our automation uses via the Ansible Galaxy utility
+
+**How to do it:**  
 We're going to install Ansible as an "Execution Environment" inside of a container to run on the Fedora 43 Server. You may have used Ansible in the past, having to install the Ansible packages on your control node and issuing commands such as ```ansible-playbook```. 
 
 For this setup, we're going to run a fully self-contained Ansible node as a container via podman (similar to docker), commonly referred to as ```ansible-navigator```. If you've not used ansible-navigator or used execution environments, it would be good to get familiar with this type of configuration - it will be the future of Ansible moving forward.
@@ -233,8 +289,31 @@ cd ~/ansible/
 ```
 ansible-galaxy collection install community.general community.libvirt community.okd fedora.linux_system_roles -p my_collections/
 ```
+**More Information:**  
+You can find additional information on the Ansible components we are using below:
+- [Ansible Core Documentation](https://docs.ansible.com/)
+- [Ansible Navigator](https://docs.ansible.com/projects/navigator/)
+- [vi/vim Editor Basics](https://opensource.com/article/19/3/getting-started-vim)
+- [Ansible Execution Environments](https://docs.ansible.com/projects/ansible/latest/getting_started_ee/)
+- [Ansible Configuration File](https://docs.ansible.com/projects/ansible/latest/reference_appendices/config.html)
+- [Ansible Inventory File](https://docs.ansible.com/projects/ansible/latest/inventory_guide/index.html)
+- [Using Ansible Collections](https://docs.ansible.com/projects/ansible/latest/collections_guide/index.html)
+- [Using Ansible Roles](https://docs.ansible.com/projects/ansible/latest/playbook_guide/playbooks_reuse_roles.html#roles)
+- [Using ssh-copy-id to Configure Passwordless Logins](https://linux.die.net/man/1/ssh-copy-id)
+- [Using Ansible Galaxy](https://docs.ansible.com/projects/ansible/latest/galaxy/user_guide.html)
 
-### Enable libvirt on Fedora 43 Server and Prep for VMs
+
+## Enable libvirt on Fedora 43 Server and Prep for VMs
+**Why are we doing this?**  
+We're using our Fedora 43 Server as a bastion host and a hypervisor for all of our OpenShift environments. Fedora does not come with a way to manage KVM VMs by default, so we'll configure the host with everything needed to manage VMs on Linux - configuring compute, network, and storage.
+
+In this step, we will:
+- Install and enable libvirt, giving us the hypervisor capabilities needed
+- Modify the default libvirt network to support both DHCP and static IP addresses by using the `virsh` utility
+- Extend the volume and filesystem on our host so we have enough disk space to host the DNS and OpenShift VM disks
+- Download a Fedora cloud image that we'll use to deploy and configure the Internal DNS Server VM we will use for all of the future OpenShift lab lessons
+
+**How to do it:**  
 Ok, we finally have our hypervisor host built and our automation environment configured and ready to go - now we have to actually install the hypervisor!
 
 This is simple - we're just going to install libvirt and enable the service, which will allow us to run virtual machines. If this is your first time using `sudo` - don't be concerned when asked for your password - sudo is elevating privileges for you in order to make administrative changes to the Fedora 43 Server:
@@ -334,12 +413,30 @@ sudo mv Fedora-Server-Guest-Generic-43-1.6.x86_64.qcow2 /var/lib/libvirt/boot/
 
 Great - we've enabled libvirt, modified our DHCP address range, configured our filesystem to host our OpenShift and DNS VMs, and downloaded a Fedora pre-configured disk image to use for our DNS VM deployment. Let's move on!
 
-### Enabling the Cockpit Web Administration Interface
+**More Information:**  
+You can find additional information on the tasks we performed in this step here:
+- [libvirt Project Documentation](https://libvirt.org/)
+- [virsh Man Pages](https://www.libvirt.org/manpages/virsh.html)
+- [Linux Logical Volume Management (LVM) Basics](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_logical_volumes/overview-of-logical-volume-management_configuring-and-managing-logical-volumes)
+- [Fedora Cloud Images](https://fedoraproject.org/cloud/)
+
+
+## Enabling the Cockpit Web Administration Interface
+**Why are we doing this?**  
+Since you may be coming from a very graphical environment (vSphere) - I wanted to expose you to another method of administering your Linux server. Cockpit provides a way for you to perform basic Linux admin tasks on your system, manage virtual machines, update your server, and provides a web-based terminal that supports copy/paste from your clipboard.
+
+In this step, we will:
+- Enable and start the Cockpit service on the bastion host
+- Access the Cockpit administration interface
+- Install a Cockpit "Application" that extends administration capabilities
+- Update the Fedora 43 Server using Cockpit
+
+**How to do it:**  
 Up until now, I've intentionally had you administering the Fedora 43 Server via traditional methods using the terminal. You've gotten a little taste of the `virsh` shell, which is how we've administered KVM virtual machines for years in Linux.
 
 But this is all about learning Linux-based virtualization and some basic administration tasks before we get to OpenShift, so let's take a look at another method - Cockpit.
 
-Cockpit is a nice web interface to give you information about your Linux server and provide a method to do some basic administration tasks. First, we'll enable cockpit and start the service:
+First, we'll enable cockpit and start the service:
 ```
 systemctl enable --now cockpit.socket
 ```
@@ -385,8 +482,21 @@ sudo reboot now
 ```
 Wait for Fedora to reboot, and then refresh Cockpit and log back in.
 
+**More Information:**  
+You can find more information on Cockpit [here](https://cockpit-project.org/).
 
-### Deploying a BIND9 DNS VM for Internal Name Resolution
+## Deploying a BIND9 DNS VM for Internal Name Resolution
+**Why are we doing this?**  
+As a vSphere person, you probably know the two biggest things that break environments - NTP and DNS. Well, OpenShift is no different when it comes to DNS - so we'll be deploying a custom DNS server for the domains that our OpenShift environments will be using. I also wanted to expose you to a different way to deploy and customize a KVM VM, so we'll be using the Fedora Cloud image that we previously downloaded when we enabled libvirt on the bastion host.
+
+In this step, we will:
+- Cover some different methods of deploying VMs using KVM and libvirt
+- Create a VM disk from the Fedora Cloud qcow2 image previously downloaded
+- Create and boot a VM using the `virt-install` CLI utility
+- Use the configuration menu baked into the Fedora Cloud image to customize our DNS VM
+- Use the Cockpit "Machines" Application to view our newly created VM in the Cockpit administration interface
+
+**How to do it:**  
 DNS is a critical service needed for OpenShift to function. There are a few different ways we could deploy the DNS VM that we'll need for OpenShift using libvirt:
 
 - Use the CLI and the libvirt `virt-install` command, defining our VM configuration via command line arguments passed to `virt-install`
@@ -450,7 +560,26 @@ To get back to your Fedora 43 Server terminal prompt after the VM has rebooted, 
 
 If you'd like, you can navigate to your Fedora 43 Server VM's Cockpit web interface and use the "Machines" application to look at the DNS VM that we just created. Next up, we'll configure the DNS VM using Ansible and prep our nameserver with the records necessary for our OpenShift installation.
 
-### Configuring the DNS VM With Ansible
+**More Information:**  
+You can find additional information about the `virt-install` utility [here](https://linux.die.net/man/1/virt-install).
+
+## Configuring the DNS VM With Ansible
+**Why are we doing this?**  
+While I want to teach you as much as possible, I don't want to dig super deep into complex topics and want to use Ansible to automate the things that might go very wrong as a new user to Linux for you. BIND DNS servers are not the easiest to configure and get reliable name resolution if you've never installed, configured, and used BIND before - so we're going to use Ansible to automate this!
+
+I've written an Ansible role to pre-configure the BIND DNS services, forward and reverse lookup zones, and reconfiguring the DNS clients on the bastion host and DNS VM to use BIND for DNS resolution. The OpenShift nodes/clusters we deploy in the future lab lessons will also use these BIND services for DNS.
+
+In this step, we will:
+- Add the freshly deployed DNS VM as a target in our Ansible inventory so we can manage and run automation against it
+- Configure SSH for Ansible automation of the DNS VM
+- Install `git` utilities so we can use code pulled from GitHub repositories
+- Clone this GitHub repository onto the bastion host, which contains all of the Ansible playbooks and custom roles for these labs
+- Using Ansible Galaxy, install the custom Ansible role that will configure the DNS VM and BIND instance
+- Execute an Ansible playbook that uses the custom Ansible role to configure our DNS VM and BIND instance, set the DNS VM to autostart, and configure some kernel parameters on the bastion host to improve nested VM reliability
+- Test DNS name resolution for the `lab.example.com` domain using `dig` and `ping` utilities
+- Ensure the DNS VM autostarts after a reboot of the bastion host
+
+**How to do it:**  
 We've already added our Fedora 43 Server running KVM and libvirt to our Ansible inventory, and configured SSH keys for it. Now, let's do the same for our fresh DNS server so we can install and configure BIND using Ansible automation. Navigate to the `fedora-kvm` server Cockpit web interface, and select the Terminal from the left pane.
 
 Open the ansible inventory file by typing:
@@ -550,7 +679,26 @@ sudo reboot now
 
 Let your `fedora-kvm` host reboot, and then login to Cockpit to see if the DNS VM auto-started. If it did, we're golden - so let's move on!
 
-### Prepping Ansible to Deploy OpenShift
+**More Information:**  
+You can find additional information on the tasks we performed in this step here:
+- [GitHub Basics](https://docs.github.com/en/get-started/git-basics)
+- [Executing Ansible Playbooks](https://docs.ansible.com/projects/ansible/latest/playbook_guide/playbooks_execution.html)
+- [BIND9 DNS Server](https://www.isc.org/bind/)
+
+
+## Prepping Ansible to Deploy OpenShift
+**Why are we doing this?**  
+To install OpenShift using the Agent-Based Installer via the Ansible role I wrote, we need to provide Ansible with the "Pull Secret" I referenced earlier in this lesson. However, that secret should stay just that - a secret! So, we're going to use Ansible Vault to encrypt variable information (the Pull Secret and our SSH public key) that the OpenShift Ansible role needs.
+
+In this step, we're going to:
+- Create an Ansible Vault file via password protection that will house your sensitive variable information
+- Log into the Red Hat Hybrid Cloud Console using your Red Hat Developer account to obtain your OpenShift Pull Secret
+- Populate the Ansible Vault file with your sensitive variable information
+- Verify that the Ansible Vault file information is unreadable without decrypting the file
+- Using Ansible Galaxy, install the custom Ansible role that will deploy OpenShift onto KVM VMs
+- Copy the Ansible playbooks that we'll use in the next lab lessons to deploy different OpenShift cluster configurations
+
+**How to do it:**  
 Up until now, everything we've done has been basic Linux and KVM tasks - with a little bit of Ansible sprinkled in to make it easy and consistent. Hopefully you've learned a bit so far if you're not super familiar with Linux.
 
 In these next steps, we're going to configure Ansible to be ready to deploy OpenShift in the next set of lab lessons - but we need to get what's called a "pull secret" from Red Hat in order to deploy OpenShift. 
@@ -624,8 +772,12 @@ Finally, just like with our DNS Ansible automation - we need to copy over the pl
 ```
 cp ~/working/nested-openshift-sandbox-labs/ansible/ocp_{sno,tna,compact}_install.yml ~/ansible/
 ```
+**More Information:**  
+You can find additional information on the tasks we performed in this step here:
+- [Ansible Vault](https://docs.ansible.com/projects/ansible/latest/vault_guide/index.html)
+- [Red Hat Hybrid Cloud Console](https://www.redhat.com/en/hybrid-cloud-console)
 
-### Wrapping Up Lesson One
+## Wrapping Up Lesson One
 If you've never used Linux and native KVM heavily in the past, or only played around with it a bit - hopefully I've given you a few new skills - or at least started you out on your journey to using Linux and native KVM. 
 
 Everything you've seen so far is really covering "legacy virtualization" concepts - and we'll get to the cloud native, or "Modern Virtualization" concepts in the next lab lessons.
