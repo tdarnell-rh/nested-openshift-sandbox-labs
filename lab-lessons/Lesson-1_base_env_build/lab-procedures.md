@@ -4,7 +4,7 @@
 ## Welcome
 Thanks for checking out this lab series! You probably got here from my [introduction LinkedIn post](https://www.linkedin.com/pulse/nested-openshift-sandbox-labs-introduction-tim-darnell-ea29c/), or from someone sharing the link with you - either way, welcome!
 
-A bit of background - I started building these for a couple of reasons. I wanted to build my Ansible skills as I was taking my RHCE (EX200) exam - but I also wanted to create some automation to easily stand up environments on my laptop for my OpenShift training I'm required to go through as a specialist at Red Hat. So, I figured I would marry the two - and this became the result.
+A bit of background - I started building these for a couple of reasons. I wanted to build my Ansible skills as I was taking my RHCE (EX294) exam - but I also wanted to create some automation to easily stand up environments on my laptop for my OpenShift training I'm required to go through as a specialist at Red Hat. So, I figured I would marry the two - and this became the result.
 
 This is built to only run on libvirt/KVM - if you're looking for OpenShift deployment on other platforms, there are plenty of other things you can find that use public cloud providers or the vSphere provider. My goal here is to educate people who have lived most of their professional lives in vSphere, may not be Kubernetes or KubeVirt experts, and who haven't been exposed to native KVM much - these foundational principles should help if you choose to start looking at cloud native ways of managing VMs.
 
