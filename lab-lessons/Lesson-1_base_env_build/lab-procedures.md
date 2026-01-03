@@ -123,7 +123,7 @@ You'll be greeted by a terminal login prompt once the VM reboots. Login with the
 
 Since you'll be using this VM as both the KVM hypervisor and a bastion host to access OpenShift, let's install a UI and some tools we need. Enter the following to install the necessary packages:
 ```
-dnf install gdm gnome-terminal gnome-software firefox pip3 python3-libdnf5 virt-manager -y
+dnf install gdm gnome-terminal gnome-software firefox pip3 python3-libdnf5 virt-manager gcc python3-devel -y
 ```
 
 Once the packages are installed, let's set the graphical target (UI) as the default for boot, enable the display manager service, then reboot the machine:
