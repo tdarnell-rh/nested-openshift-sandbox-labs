@@ -1,0 +1,94 @@
+apiVersion: ocs.openshift.io/v1
+kind: StorageCluster
+metadata:
+  name: ocs-storagecluster
+  namespace: openshift-storage
+spec:
+  arbiter: {}
+  encryption:
+    keyRotation:
+      schedule: '@weekly'
+    kms: {}
+  externalStorage: {}
+  flexibleScaling: true
+  managedResources:
+    cephBlockPools:
+      defaultStorageClass: true
+      defaultVirtualizationStorageClass: true
+    cephCluster: {}
+    cephConfig: {}
+    cephDashboard: {}
+    cephFilesystems: {}
+    cephNonResilientPools: {}
+    cephObjectStoreUsers: {}
+    cephObjectStores: {}
+    cephRBDMirror: {}
+    cephToolbox: {}
+  monDataDirHostPath: /var/lib/rook
+  network:
+    connections:
+      encryption: {}
+    multiClusterService: {}
+  nodeTopologies: {}
+  flexibleScaling: true
+  resources:
+    mgr:
+      limits:
+        cpu: 500m
+        memory: 1024Mi
+      requests:
+        cpu: 100m
+        memory: 512Mi
+    mon:
+      limits:
+        cpu: 250m
+        memory: 500Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    mds:
+      limits:
+        cpu: 500m
+        memory: 1536Mi
+      requests:
+        cpu: 100m
+        memory: 768Mi
+    rgw:
+      limits:
+        cpu: 400m
+        memory: 768Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    noobaa-core:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    noobaa-db:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    noobaa-endpoint:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  storageDeviceSets:
+    - name: ocs-device-set
+      dataPVCTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: "1"
+          storageClassName: local-volume-set-sc
+          volumeMode: Block
+      count: 3
+      replica: 1
+      resources:
+        limits:
+          cpu: 750m
+          memory: 1536Mi
+        requests:
+          cpu: 150m
+          memory: 256Mi
