@@ -6,6 +6,9 @@
     - name: Create the namespace for the Local Storage Operator
       ansible.builtin.shell: "oc create ns openshift-local-storage"
 
+    - name: Label the Local Storage Operator namespace for cluster monitoring
+      ansible.builtin.shell: "oc label namespaces openshift-local-storage openshift.io/cluster-monitoring=true"
+
     - name: Create the local-storage-operator OperatorGroup
       ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/lso/lso_operatorgroup.yml"
 

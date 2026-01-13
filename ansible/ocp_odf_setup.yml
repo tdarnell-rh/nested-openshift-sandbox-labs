@@ -7,6 +7,9 @@
     - name: Create the namespace for odf-operator
       ansible.builtin.shell: "oc create ns openshift-storage"
 
+    - name: Label the openshift-storage namespace for cluster monitoring
+      ansible.builtin.shell: "oc label namespaces openshift-storage openshift.io/cluster-monitoring=true"
+
     - name: Create the ODF OperatorGroup
       ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/odf/odf_operatorgroup.yml"
 
@@ -52,3 +55,20 @@
 
     - name: Enable the ODF Console UI plugin
       ansible.builtin.shell: oc patch console.operator cluster --type=json -p='[{"op":"add","path":"/spec/plugins/-","value":"odf-console"}]'
+
+    - name: Create the ODF StorageCluster
+      ansible.builtin.shell: "oc apply -f working/nested-openshift-sandbox-labs/files/operators/odf/odf_3nc_storage_cluster.yml"
+
+    - name: Wait until the StorageCluster is in the Ready phase
+      ansible.builtin.shell: oc get storagecluster ocs-storagecluster -n openshift-storage -o jsonpath='{.status.phase}'
+      register: odf_stc_phase
+      until: odf_stc_phase.stdout == "Ready"
+      retries: 100
+      delay: 10
+
+    - name: Wait until the noobaa object store is in the Ready phase
+      ansible.builtin.shell: oc get noobaa noobaa -n openshift-storage -o jsonpath='{.status.phase}'
+      register: noobaa_phase
+      until: noobaa_phase.stdout == "Ready"
+      retries: 100
+      delay: 10

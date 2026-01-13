@@ -15,4 +15,4 @@ spec:
     - storageClassName: local-volume-set-sc
       volumeMode: Block
       devicePaths:
-        - /dev/nvme1n1
+        - /dev/disk/by-id/nvme-QEMU_NVMe_Ctrl_nvmedata2
