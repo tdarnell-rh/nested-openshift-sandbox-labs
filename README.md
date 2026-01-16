@@ -23,7 +23,7 @@ Once you have your base environment built, it gets pretty simple to deploy a han
 ![Lesson Two Environment Diagram](/lab-lessons/Lesson-2_sno_deploy/images/Fedora-nested-ocp-sno.png)  
 
 ### Two Node Arbiter OpenShift with OpenShift Virtualization  
-[Lab Lesson Three - Two Node Arbiter](/lab-lessons/Lesson-2_sno_deploy/lab-procedures.md)  
+[Lab Lesson Three - Two Node Arbiter](/lab-lessons/Lesson-3_tna_deploy/lab-procedures.md)  
 - Two Node Arbiter OpenShift (TNA) Deployment
 - Portworx Enterprise TNA Configuration
 - NMState OVS Networking for VMs
