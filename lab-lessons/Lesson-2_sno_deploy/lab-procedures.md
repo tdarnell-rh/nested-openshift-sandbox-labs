@@ -59,10 +59,28 @@ It's critical that you log into the `fedora-kvm` server console and NOT use the 
 
 Open the console of your `fedora-kvm` VM, login as your user account, and start a terminal session by clicking on the terminal icon in the dash.
 
-Next, let's change into our local working ansible directory, and execute the playbook. From your terminal session in the VM console, type:
+First, let's make sure that you've got the latest and greatest code from this repo, since sometimes we're tweaking things for kaizen. From your terminal session in the VM console, type:
+
+```
+cd ~/working/nested-openshift-sandbox-labs/
+```
+
+Pull the latest codebase:
+```
+git pull
+```
+
+Change to your local ansible working directory:
 ```
 cd ~/ansible
 ```
+
+Then copy over the latest playbooks for setup:
+```
+cp ~/working/nested-openshift-sandbox-labs/ansible/{kvm_host_perf_tune.yml,ocp_sno_install.yml} .
+```
+
+Next, let's execute the playbook to deploy OpenShift:
 ```
 ansible-navigator run -m stdout ocp_sno_install.yml --enable-prompts --ask-vault-pass -e local_auth_folder=/home/$(whoami)/ansible/
 ```

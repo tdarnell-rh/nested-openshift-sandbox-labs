@@ -1,0 +1,30 @@
+---
+- name: Configure KVM host perf parameters
+  hosts: kvm_target
+  become: true
+  tasks:
+    - name: Configure vmswappiness
+      ansible.builtin.copy:
+        dest: /etc/sysctl.d/99-swappiness.conf
+        content: |
+          vm.swappiness=100
+
+    - name: Enable the swappiness
+      ansible.builtin.shell: "sysctl -p"
+
+    - name: Install KSM and ksmtuned
+      ansible.builtin.dnf:
+        name: ksmtuned
+        state: latest
+
+    - name: Enable and start ksm and ksmtuned
+      loop:
+        - ksm
+        - ksmtuned
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+
+    - name: Set the tuned profile to throughput-performance
+      ansible.builtin.shell: "tuned-adm profile throughput-performance"

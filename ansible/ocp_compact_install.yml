@@ -1,4 +1,7 @@
 ---
+- name: Pre-configure KVM host performance and memory behavior
+  ansible.builtin.import_playbook: kvm_host_perf_tune.yml
+
 - name: Install Compact OCP via libvirt
   hosts: kvm_target
   become: true
