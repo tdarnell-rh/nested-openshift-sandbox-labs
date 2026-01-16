@@ -6,7 +6,9 @@ Contributions/corrections are always welcome!
 
 ## How To Get Started  
 These labs are meant to be run as nested environments. So, to get started to build out a base KVM hypervisor VM - you'll need to start with lab lesson one:  
+
 [Lab Lesson One - Base Environment Build](/lab-lessons/Lesson-1_base_env_build/lab-procedures.md)  
+
 ![Lesson One Environment Diagram](/lab-lessons/Lesson-1_base_env_build/images/Fedora-nested-ocp-fedora-kvm.png)  
 
 Once you have your base environment built, it gets pretty simple to deploy a handful of different OpenShift environments to play with using Ansible:  
