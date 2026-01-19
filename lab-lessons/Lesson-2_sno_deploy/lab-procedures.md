@@ -175,7 +175,7 @@ To do this, we will:
 - Create a NetworkAttachmentDefinition (`NAD`) for the namespace in OpenShift that our VMs will reside in
 
 **How to do it:**  
- Again, let's run some Ansible to do this!
+Again, let's run some Ansible to do this!
 ```
 cp ~/working/nested-openshift-sandbox-labs/ansible/ocp_nmstate_setup.yml ~/ansible/
 ```
