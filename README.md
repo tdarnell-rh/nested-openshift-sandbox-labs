@@ -32,4 +32,11 @@ Once you have your base environment built, it gets pretty simple to deploy a han
 ![Lesson Three Environment Diagram](/lab-lessons/Lesson-3_tna_deploy/images/Fedora-nested-ocp-tna.png)  
 
 ### Three Node Compact OpenShift with OpenShift Virtualization  
-*Coming Soon!*
+[Lab Lesson Four - Compact Three Node Cluster](/lab-lessons/Lesson-4_3nc_deploy/lab-procedures.md)  
+- Compact Three Node OpenShift Cluster Deployment
+- OpenShift Data Foundation **or** Portworx Enterprise Configuration
+- NMState OVS Networking for VMs
+- HyperConverged Operator (OpenShift Virtualization)  
+
+![Lesson Four Environment Diagram](/lab-lessons/Lesson-4_3nc_deploy/images/Fedora-Three-Node-Compact-Cluster.png)  
+
