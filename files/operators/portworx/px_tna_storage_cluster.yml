@@ -41,6 +41,7 @@ spec:
       devices: []
       kvdbDevice: /dev/disk/by-id/nvme-QEMU_NVMe_Ctrl_nvmedata1
       useAll: false
+    miscArgs: ' -cluster_domain witness '
   placement:
     tolerations:
     - effect: NoSchedule
