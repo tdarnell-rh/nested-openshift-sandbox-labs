@@ -821,13 +821,13 @@ By following this lesson guide, you now have a base KVM host, DNS server, and An
 
 From this point, you can kind of "choose your own adventure" in terms of what you'd like to learn next:
 
-- Single Node OpenShift Lab Guide
+- [Single Node OpenShift Lab Guide](/lab-lessons/Lesson-2_sno_deploy/lab-procedures.md)
 	 - Uses the fewest resources, but you will not be able to test/learn features like Live Migration (equivalent to vMotion)
 
-- Two Node Arbiter OpenShift Lab Guide
+- [Two Node Arbiter OpenShift Lab Guide](/lab-lessons/Lesson-3_tna_deploy/lab-procedures.md)
 	 - You should definitely have at least 64GB of RAM here - this is useful for learning an alternative to a two-node vSAN cluster with a witness, and uses the 30-day trial of Portworx Enterprise for storage to support Live Migration and two node arbiter configuration
 
-- Three Node Compact Cluster OpenShift Lab Guide
+- [Three Node Compact Cluster OpenShift Lab Guide](/lab-lessons/Lesson-4_3nc_deploy/lab-procedures.md)
 	 - Again, you should definitely have at least 64GB of RAM on your `fedora-kvm` host for this one. This uses three "full" nodes that act as the control plane and worker nodes in OpenShift, and also uses Portworx Enterprise for storage to support Live Migration
 
 Thanks for participating, and I look forward to you building your skills further in future lessons and lab guides!
