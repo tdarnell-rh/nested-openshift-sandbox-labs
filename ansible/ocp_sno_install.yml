@@ -33,7 +33,7 @@
       become: false
       ansible.builtin.shell: |
         mkdir -p /home/$(whoami)/.kube
-        cp {{ local_auth_folder }}/{{ inventory_hostname }}/tmp/{{ ocp_type }}-{{ ocp_cluster_prefix }}-installer/auth/kubeconfig /home/$(whoami)/.kube/config
+        cp {{ local_auth_folder }}/{{ inventory_hostname }}/tmp/{{ ocp_cluster_prefix }}-{{ ocp_type }}-installer/auth/kubeconfig /home/$(whoami)/.kube/config
         echo "/home/$(whoami)/.kube/config"
       register: kubeconfig
 
